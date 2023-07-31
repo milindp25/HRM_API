@@ -1,0 +1,490 @@
+-- creating Database
+create database HRM_DB;
+
+use HRM_DB;
+
+-- Create the Employee table
+
+DROP TABLE IF EXISTS EMPLOYEE;
+
+CREATE TABLE Employee (
+  employee_id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
+  email VARCHAR(255),
+  phone_number VARCHAR(255),
+  date_of_birth DATE,
+  street_address_1 VARCHAR(255),
+  street_address_2 VARCHAR(255),
+  city VARCHAR(255),
+  state VARCHAR(255),
+  department_id INT,
+  date_of_joining DATE,
+  user_type CHAR(1),
+  age INT
+);
+
+-- Create a trigger to calculate the age on insert or update
+DELIMITER //
+CREATE TRIGGER calculate_age
+BEFORE INSERT ON Employee
+FOR EACH ROW
+BEGIN
+    SET NEW.age = TIMESTAMPDIFF(YEAR, NEW.date_of_birth, CURDATE());
+END;
+//
+DELIMITER ;
+
+
+
+
+-- Create the Department table
+
+DROP TABLE IF EXISTS Department;
+
+CREATE TABLE Department (
+  department_id INT AUTO_INCREMENT PRIMARY KEY,
+  department_name VARCHAR(255),
+  manager_id INT,
+  FOREIGN KEY (manager_id) REFERENCES Employee(employee_id)
+);
+
+-- Create the Job table
+
+DROP TABLE IF EXISTS Job;
+
+CREATE TABLE Job (
+  job_id INT AUTO_INCREMENT PRIMARY KEY,
+  job_title VARCHAR(255),
+  salary DECIMAL(10, 2)
+);
+
+-- Create the Attendance table
+
+DROP TABLE IF EXISTS Attendance;
+
+CREATE TABLE Attendance (
+  attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT,
+  date DATE,
+  time_in TIME,
+  time_out TIME,
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
+
+-- Create the Payroll table
+
+DROP TABLE IF EXISTS Payroll;
+
+CREATE TABLE Payroll (
+  payroll_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT,
+  pay_period VARCHAR(255),
+  hourly_rate DECIMAL(5,2),
+  amount DECIMAL(10, 2),
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
+
+-- Create the Recruitment table
+
+DROP TABLE IF EXISTS Recruitment;
+
+CREATE TABLE Recruitment (
+  recruitment_id INT AUTO_INCREMENT PRIMARY KEY,
+  position_id INT,
+  department_id INT,
+  start_date DATE,
+  end_date DATE,
+  status VARCHAR(255),
+  FOREIGN KEY (position_id) REFERENCES Job(job_id),
+  FOREIGN KEY (department_id) REFERENCES Department(department_id)
+);
+
+-- Create the Performance table
+
+DROP TABLE IF EXISTS Performance;
+
+CREATE TABLE Performance (
+  performance_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT,
+  date DATE,
+  rating INT,
+  comments TEXT,
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
+
+-- Create the Benefits table
+
+DROP TABLE IF EXISTS Benefits;
+
+CREATE TABLE Benefits (
+  benefit_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT,
+  benefit_type VARCHAR(255),
+  start_date DATE,
+  end_date DATE,
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
+
+-- Create the Expense table
+
+DROP TABLE IF EXISTS Expense;
+
+CREATE TABLE Expense (
+  expense_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT,
+  expense_type VARCHAR(255),
+  date DATE,
+  expense_status CHAR(3),
+  amount DECIMAL(10, 2)
+);
+
+DROP TABLE IF EXISTS Dependent;
+
+CREATE TABLE Dependent (
+  dependent_name VARCHAR(255),
+  employee_id INT,
+  date_of_birth DATE,
+  relationship VARCHAR(255),
+  PRIMARY KEY (dependent_name, employee_id),
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
+
+
+-- Populate the Employee table
+INSERT INTO Employee (employee_id, first_name, last_name, email, phone_number, date_of_birth, street_address_1, city, state, department_id, date_of_joining, user_type) 
+VALUES 
+(1, 'John', 'Doe', 'johndoe1@example.com', '123-456-7891', '1990-01-01', '123 Main St', 'New York', 'NY', 1, '2011-01-01', 'E'),
+(2, 'Jane', 'Doe', 'janedoe2@example.com', '123-456-7892', '1991-02-02', '234 Main St', 'Los Angeles', 'CA', 2, '2011-02-02', 'E'),
+(3, 'James', 'Smith', 'jamessmith3@example.com', '123-456-7893', '1992-03-03', '345 Main St', 'Chicago', 'IL', 3, '2011-03-03', 'E'),
+(4, 'Jessica', 'Johnson', 'jessicajohnson4@example.com', '123-456-7894', '1993-04-04', '456 Main St', 'Houston', 'TX', 1, '2011-04-04', 'E'),
+(5, 'Joseph', 'Williams', 'josephwilliams5@example.com', '123-456-7895', '1994-05-05', '567 Main St', 'Philadelphia', 'PA', 2, '2011-05-05', 'E'),
+(6, 'Jennifer', 'Brown', 'jenniferbrown6@example.com', '123-456-7896', '1995-06-06', '678 Main St', 'Phoenix', 'AZ', 3, '2011-06-06', 'E'),
+(7, 'Jacob', 'Jones', 'jacobjones7@example.com', '123-456-7897', '1996-07-07', '789 Main St', 'San Antonio', 'TX', 1, '2011-07-07', 'E'),
+(8, 'Julia', 'Miller', 'juliamiller8@example.com', '123-456-7898', '1997-08-08', '890 Main St', 'San Diego', 'CA', 2, '2011-08-08', 'E'),
+(9, 'Jason', 'Davis', 'jasondavis9@example.com', '123-456-7899', '1998-09-09', '901 Main St', 'Dallas', 'TX', 3, '2011-09-09', 'E'),
+(10, 'Julie', 'Garcia', 'juliegarcia10@example.com', '123-456-7810', '1999-10-10', '102 Main St', 'San Jose', 'CA', 1, '2011-10-10', 'E'),
+(11, 'Jeffrey', 'Rodriguez', 'jeffreyrodriguez11@example.com', '123-456-7811', '1999-11-11', '113 Main St', 'Austin', 'TX', 2, '2011-11-11', 'E'),
+(12, 'Jasmine', 'Wilson', 'jasminewilson12@example.com', '123-456-7812', '1999-12-12', '124 Main St', 'Jacksonville', 'FL', 3, '2011-12-12', 'E'),
+(13, 'Jerry', 'Martinez', 'jerrymartinez13@example.com', '123-456-7813', '2000-01-13', '135 Main St', 'San Francisco', 'CA', 1, '2012-01-13', 'E'),
+(14, 'Janet', 'Anderson', 'janetanderson14@example.com', '123-456-7814', '2000-02-14', '146 Main St', 'Columbus', 'OH', 2, '2012-02-14', 'E'),
+(15, 'Jack', 'Taylor', 'jacktaylor15@example.com', '123-456-7815', '2000-03-15', '157 Main St', 'Fort Worth', 'TX', 3, '2012-03-15', 'E'),
+(16, 'Joyce', 'Thomas', 'joycethomas16@example.com', '123-456-7816', '2000-04-16', '168 Main St', 'Indianapolis', 'IN', 1, '2012-04-16', 'E'),
+(17, 'Jeremy', 'Hernandez', 'jeremyhernandez17@example.com', '123-456-7817', '2000-05-17', '179 Main St', 'Charlotte', 'NC', 2, '2012-05-17', 'E'),
+(18, 'Jill', 'Moore', 'jillmoore18@example.com', '123-456-7818', '2000-06-18', '180 Main St', 'Seattle', 'WA', 3, '2012-06-18', 'E'),
+(19, 'Justin', 'Martin', 'justinmartin19@example.com', '123-456-7819', '2000-07-19', '191 Main St', 'Denver', 'CO', 1, '2012-07-19', 'E'),
+(20, 'Joan', 'Jackson', 'joanjackson20@example.com', '123-456-7820', '2000-08-20', '202 Main St', 'El Paso', 'TX', 2, '2012-08-20', 'E'),
+(21, 'Jonathan', 'Thompson', 'jonathanthompson21@example.com', '123-456-7821', '2000-09-21', '213 Main St', 'Detroit', 'MI', 3, '2012-09-21', 'E'),
+(22, 'June', 'White', 'junewhite22@example.com', '123-456-7822', '2000-10-22', '224 Main St', 'Boston', 'MA', 1, '2012-10-22', 'E'),
+(23, 'Jordan', 'Harris', 'jordanharris23@example.com', '123-456-7823', '2000-11-23', '235 Main St', 'Nashville', 'TN', 2, '2012-11-23', 'E'),
+(24, 'Judith', 'Clark', 'judithclark24@example.com', '123-456-7824', '2000-12-24', '246 Main St', 'Memphis', 'TN', 3, '2012-12-24', 'E'),
+(25, 'Jared', 'Robinson', 'jaredrobinson25@example.com', '123-456-7825', '2001-01-25', '257 Main St', 'Portland', 'OR', 1, '2013-01-25', 'E'),
+(26, 'Jean', 'Lewis', 'jeanlewis26@example.com', '123-456-7826', '2001-02-26', '268 Main St', 'Oklahoma City', 'OK', 2, '2013-02-26', 'E'),
+(27, 'Jake', 'Walker', 'jakewalker27@example.com', '123-456-7827', '2001-03-27', '279 Main St', 'Las Vegas', 'NV', 3, '2013-03-27', 'E'),
+(28, 'Judy', 'Perez', 'judyperez28@example.com', '123-456-7828', '2001-04-28', '280 Main St', 'Louisville', 'KY', 1, '2013-04-28', 'E'),
+(29, 'Joel', 'Hall', 'joelhall29@example.com', '123-456-7829', '2001-05-29', '291 Main St', 'Baltimore', 'MD', 2, '2013-05-29', 'E'),
+(30, 'Jenna', 'Young', 'jennayoung30@example.com', '123-456-7830', '2001-06-30', '302 Main St', 'Milwaukee', 'WI', 3, '2013-06-30', 'E');
+
+-- Populate the Department table
+INSERT INTO Department (department_id, department_name, manager_id) 
+VALUES 
+(1, 'Human Resources', 1),
+(2, 'Finance', 2),
+(3, 'Marketing', 3),
+(4, 'Sales', 4),
+(5, 'Customer Service', 5),
+(6, 'Research and Development', 6),
+(7, 'Information Technology', 7),
+(8, 'Product Development', 8),
+(9, 'Operations', 9),
+(10, 'Legal', 10);
+
+-- Populate the Job table
+INSERT INTO Job (job_id, job_title, salary)
+VALUES
+(1, 'Human Resources Manager', 80000.00),
+(2, 'Financial Analyst', 70000.00),
+(3, 'Marketing Specialist', 60000.00),
+(4, 'Sales Representative', 50000.00),
+(5, 'Customer Service Representative', 45000.00),
+(6, 'Research Scientist', 75000.00),
+(7, 'IT Specialist', 85000.00),
+(8, 'Product Manager', 90000.00),
+(9, 'Operations Manager', 95000.00),
+(10, 'Legal Counsel', 105000.00),
+(11, 'Human Resources Associate', 50000.00),
+(12, 'Financial Assistant', 45000.00),
+(13, 'Marketing Assistant', 40000.00),
+(14, 'Sales Assistant', 35000.00),
+(15, 'Customer Service Assistant', 30000.00),
+(16, 'Research Assistant', 40000.00),
+(17, 'IT Support Specialist', 55000.00),
+(18, 'Product Coordinator', 60000.00),
+(19, 'Operations Coordinator', 65000.00),
+(20, 'Legal Assistant', 70000.00),
+(21, 'Human Resources Intern', 30000.00),
+(22, 'Financial Intern', 28000.00),
+(23, 'Marketing Intern', 28000.00),
+(24, 'Sales Intern', 25000.00),
+(25, 'Customer Service Intern', 25000.00),
+(26, 'Research Intern', 27000.00),
+(27, 'IT Intern', 30000.00),
+(28, 'Product Intern', 28000.00),
+(29, 'Operations Intern', 28000.00),
+(30, 'Legal Intern', 30000.00);
+
+-- Populate the Attendance table
+INSERT INTO Attendance (attendance_id, employee_id, date, time_in, time_out)
+VALUES
+(1, 1, '2023-07-01', '08:00:00', '17:00:00'),
+(2, 1, '2023-07-02', '08:00:00', '17:00:00'),
+(3, 1, '2023-07-03', '08:00:00', '17:00:00'),
+(4, 1, '2023-07-04', '08:00:00', '17:00:00'),
+(5, 1, '2023-07-05', '08:00:00', '17:00:00'),
+(6, 1, '2023-07-06', '08:00:00', '17:00:00'),
+(7, 2, '2023-07-01', '08:30:00', '17:30:00'),
+(8, 2, '2023-07-02', '08:30:00', '17:30:00'),
+(9, 2, '2023-07-03', '08:30:00', '17:30:00'),
+(10, 2, '2023-07-04', '08:30:00', '17:30:00'),
+(11, 2, '2023-07-05', '08:30:00', '17:30:00'),
+(12, 2, '2023-07-06', '08:30:00', '17:30:00'),
+(13, 3, '2023-07-01', '09:00:00', '18:00:00'),
+(14, 3, '2023-07-02', '09:00:00', '18:00:00'),
+(15, 3, '2023-07-03', '09:00:00', '18:00:00'),
+(16, 3, '2023-07-04', '09:00:00', '18:00:00'),
+(17, 3, '2023-07-05', '09:00:00', '18:00:00'),
+(18, 3, '2023-07-06', '09:00:00', '18:00:00'),
+(19, 4, '2023-07-01', '08:15:00', '17:15:00'),
+(20, 4, '2023-07-02', '08:15:00', '17:15:00'),
+(21, 4, '2023-07-03', '08:15:00', '17:15:00'),
+(22, 4, '2023-07-04', '08:15:00', '17:15:00'),
+(23, 4, '2023-07-05', '08:15:00', '17:15:00'),
+(24, 4, '2023-07-06', '08:15:00', '17:15:00'),
+(25, 5, '2023-07-01', '08:45:00', '17:45:00'),
+(26, 5, '2023-07-02', '08:45:00', '17:45:00'),
+(27, 5, '2023-07-03', '08:45:00', '17:45:00'),
+(28, 5, '2023-07-04', '08:45:00', '17:45:00'),
+(29, 5, '2023-07-05', '08:45:00', '17:45:00'),
+(30, 5, '2023-07-06', '08:45:00', '17:45:00');
+
+INSERT INTO Payroll (payroll_id, employee_id, pay_period, hourly_rate, amount)
+VALUES
+(1, 1, 'January 2023 - February 2023', 20.00, 4000.00),
+(2, 2, 'January 2023 - February 2023', 22.00, 4400.00),
+(3, 3, 'January 2023 - February 2023', 24.00, 4800.00),
+(4, 4, 'January 2023 - February 2023', 26.00, 5200.00),
+(5, 5, 'January 2023 - February 2023', 28.00, 5600.00),
+
+(6, 1, 'February 2023 - March 2023', 20.00, 4000.00),
+(7, 2, 'February 2023 - March 2023', 22.00, 4400.00),
+(8, 3, 'February 2023 - March 2023', 24.00, 4800.00),
+(9, 4, 'February 2023 - March 2023', 26.00, 5200.00),
+(10, 5, 'February 2023 - March 2023', 28.00, 5600.00),
+
+(11, 1, 'March 2023 - April 2023', 20.00, 4000.00),
+(12, 2, 'March 2023 - April 2023', 22.00, 4400.00),
+(13, 3, 'March 2023 - April 2023', 24.00, 4800.00),
+(14, 4, 'March 2023 - April 2023', 26.00, 5200.00),
+(15, 5, 'March 2023 - April 2023', 28.00, 5600.00),
+
+(16, 1, 'April 2023 - May 2023', 20.00, 4000.00),
+(17, 2, 'April 2023 - May 2023', 22.00, 4400.00),
+(18, 3, 'April 2023 - May 2023', 24.00, 4800.00),
+(19, 4, 'April 2023 - May 2023', 26.00, 5200.00),
+(20, 5, 'April 2023 - May 2023', 28.00, 5600.00),
+
+(21, 1, 'May 2023 - June 2023', 20.00, 4000.00),
+(22, 2, 'May 2023 - June 2023', 22.00, 4400.00),
+(23, 3, 'May 2023 - June 2023', 24.00, 4800.00),
+(24, 4, 'May 2023 - June 2023', 26.00, 5200.00),
+(25, 5, 'May 2023 - June 2023', 28.00, 5600.00),
+
+(26, 1, 'June 2023 - July 2023', 20.00, 4000.00),
+(27, 2, 'June 2023 - July 2023', 22.00, 4400.00),
+(28, 3, 'June 2023 - July 2023', 24.00, 4800.00),
+(29, 4, 'June 2023 - July 2023', 26.00, 5200.00),
+(30, 5, 'June 2023 - July 2023', 28.00, 5600.00);
+
+
+INSERT INTO Recruitment (recruitment_id, position_id, department_id, start_date, end_date, status)
+VALUES
+(1, 1, 1, '2023-01-01', '2023-02-28', 'Closed'),
+(2, 2, 1, '2023-03-01', '2023-04-30', 'Open'),
+(3, 3, 1, '2023-05-01', '2023-06-30', 'Closed'),
+(4, 4, 1, '2023-07-01', '2023-08-31', 'Open'),
+(5, 5, 1, '2023-09-01', '2023-10-31', 'Closed'),
+
+(6, 1, 2, '2023-01-01', '2023-02-28', 'Open'),
+(7, 2, 2, '2023-03-01', '2023-04-30', 'Closed'),
+(8, 3, 2, '2023-05-01', '2023-06-30', 'Open'),
+(9, 4, 2, '2023-07-01', '2023-08-31', 'Closed'),
+(10, 5, 2, '2023-09-01', '2023-10-31', 'Open'),
+
+(11, 1, 3, '2023-01-01', '2023-02-28', 'Closed'),
+(12, 2, 3, '2023-03-01', '2023-04-30', 'Open'),
+(13, 3, 3, '2023-05-01', '2023-06-30', 'Closed'),
+(14, 4, 3, '2023-07-01', '2023-08-31', 'Open'),
+(15, 5, 3, '2023-09-01', '2023-10-31', 'Closed'),
+
+(16, 1, 4, '2023-01-01', '2023-02-28', 'Open'),
+(17, 2, 4, '2023-03-01', '2023-04-30', 'Closed'),
+(18, 3, 4, '2023-05-01', '2023-06-30', 'Open'),
+(19, 4, 4, '2023-07-01', '2023-08-31', 'Closed'),
+(20, 5, 4, '2023-09-01', '2023-10-31', 'Open'),
+
+(21, 1, 5, '2023-01-01', '2023-02-28', 'Closed'),
+(22, 2, 5, '2023-03-01', '2023-04-30', 'Open'),
+(23, 3, 5, '2023-05-01', '2023-06-30', 'Closed'),
+(24, 4, 5, '2023-07-01', '2023-08-31', 'Open'),
+(25, 5, 5, '2023-09-01', '2023-10-31', 'Closed'),
+
+(26, 1, 1, '2023-11-01', '2023-12-31', 'Open'),
+(27, 2, 2, '2023-11-01', '2023-12-31', 'Closed'),
+(28, 3, 3, '2023-11-01', '2023-12-31', 'Open'),
+(29, 4, 4, '2023-11-01', '2023-12-31', 'Closed'),
+(30, 5, 5, '2023-11-01', '2023-12-31', 'Open');
+
+
+INSERT INTO Performance (performance_id, employee_id, date, rating, comments)
+VALUES
+(1, 1, '2023-01-01', 4, 'Good performance this quarter.'),
+(2, 2, '2023-01-01', 3, 'Average performance this quarter.'),
+(3, 3, '2023-01-01', 5, 'Excellent performance this quarter.'),
+(4, 4, '2023-01-01', 4, 'Good performance this quarter.'),
+(5, 5, '2023-01-01', 2, 'Below average performance this quarter.'),
+
+(6, 1, '2023-04-01', 5, 'Excellent performance this quarter.'),
+(7, 2, '2023-04-01', 4, 'Good performance this quarter.'),
+(8, 3, '2023-04-01', 3, 'Average performance this quarter.'),
+(9, 4, '2023-04-01', 2, 'Below average performance this quarter.'),
+(10, 5, '2023-04-01', 4, 'Good performance this quarter.'),
+
+(11, 1, '2023-07-01', 3, 'Average performance this quarter.'),
+(12, 2, '2023-07-01', 2, 'Below average performance this quarter.'),
+(13, 3, '2023-07-01', 4, 'Good performance this quarter.'),
+(14, 4, '2023-07-01', 5, 'Excellent performance this quarter.'),
+(15, 5, '2023-07-01', 3, 'Average performance this quarter.'),
+
+(16, 1, '2023-10-01', 2, 'Below average performance this quarter.'),
+(17, 2, '2023-10-01', 4, 'Good performance this quarter.'),
+(18, 3, '2023-10-01', 3, 'Average performance this quarter.'),
+(19, 4, '2023-10-01', 5, 'Excellent performance this quarter.'),
+(20, 5, '2023-10-01', 4, 'Good performance this quarter.'),
+
+(21, 1, '2024-01-01', 5, 'Excellent performance this quarter.'),
+(22, 2, '2024-01-01', 3, 'Average performance this quarter.'),
+(23, 3, '2024-01-01', 4, 'Good performance this quarter.'),
+(24, 4, '2024-01-01', 2, 'Below average performance this quarter.'),
+(25, 5, '2024-01-01', 5, 'Excellent performance this quarter.'),
+
+(26, 1, '2024-04-01', 4, 'Good performance this quarter.'),
+(27, 2, '2024-04-01', 5, 'Excellent performance this quarter.'),
+(28, 3, '2024-04-01', 3, 'Average performance this quarter.'),
+(29, 4, '2024-04-01', 4, 'Good performance this quarter.'),
+(30, 5, '2024-04-01', 2, 'Below average performance this quarter.');
+
+
+INSERT INTO Benefits (benefit_id, employee_id, benefit_type, start_date, end_date)
+VALUES
+(1, 1, 'Health Insurance', '2023-01-01', '2024-12-31'),
+(2, 2, 'Health Insurance', '2023-01-01', '2024-12-31'),
+(3, 3, 'Health Insurance', '2023-01-01', '2024-12-31'),
+(4, 4, 'Health Insurance', '2023-01-01', '2024-12-31'),
+(5, 5, 'Health Insurance', '2023-01-01', '2024-12-31'),
+
+(6, 1, 'Dental Insurance', '2023-01-01', '2024-12-31'),
+(7, 2, 'Dental Insurance', '2023-01-01', '2024-12-31'),
+(8, 3, 'Dental Insurance', '2023-01-01', '2024-12-31'),
+(9, 4, 'Dental Insurance', '2023-01-01', '2024-12-31'),
+(10, 5, 'Dental Insurance', '2023-01-01', '2024-12-31'),
+
+(11, 1, 'Retirement Plan', '2023-01-01', '2024-12-31'),
+(12, 2, 'Retirement Plan', '2023-01-01', '2024-12-31'),
+(13, 3, 'Retirement Plan', '2023-01-01', '2024-12-31'),
+(14, 4, 'Retirement Plan', '2023-01-01', '2024-12-31'),
+(15, 5, 'Retirement Plan', '2023-01-01', '2024-12-31'),
+
+(16, 1, 'Paid Time Off', '2023-01-01', '2024-12-31'),
+(17, 2, 'Paid Time Off', '2023-01-01', '2024-12-31'),
+(18, 3, 'Paid Time Off', '2023-01-01', '2024-12-31'),
+(19, 4, 'Paid Time Off', '2023-01-01', '2024-12-31'),
+(20, 5, 'Paid Time Off', '2023-01-01', '2024-12-31');
+
+INSERT INTO Expense (expense_id, employee_id, expense_type, date, expense_status, amount)
+VALUES 
+(1, 1, 'Travel', '2023-01-10', 'APR', 500.00),
+(2, 1, 'Meal', '2023-01-15', 'APR', 150.00),
+(3, 2, 'Travel', '2023-01-20', 'PND', 600.00),
+(4, 2, 'Equipment', '2023-01-25', 'APR', 700.00),
+(5, 3, 'Travel', '2023-01-30', 'PND', 800.00),
+(6, 3, 'Meal', '2023-02-01', 'APR', 250.00),
+(7, 4, 'Travel', '2023-02-10', 'APR', 300.00),
+(8, 4, 'Equipment', '2023-02-15', 'PND', 200.00),
+(9, 5, 'Travel', '2023-02-20', 'APR', 1000.00),
+(10, 5, 'Meal', '2023-02-25', 'APR', 350.00),
+(11, 1, 'Travel', '2023-03-10', 'PND', 1200.00),
+(12, 1, 'Equipment', '2023-03-15', 'APR', 250.00),
+(13, 2, 'Travel', '2023-03-20', 'APR', 650.00),
+(14, 2, 'Meal', '2023-03-25', 'PND', 450.00),
+(15, 3, 'Travel', '2023-03-30', 'APR', 1500.00),
+(16, 3, 'Equipment', '2023-04-01', 'APR', 550.00),
+(17, 4, 'Travel', '2023-04-10', 'PND', 900.00),
+(18, 4, 'Meal', '2023-04-15', 'APR', 650.00),
+(19, 5, 'Travel', '2023-04-20', 'APR', 1100.00),
+(20, 5, 'Equipment', '2023-04-25', 'APR', 750.00);
+
+
+INSERT INTO Dependent (dependent_name, employee_id, date_of_birth, relationship) VALUES 
+('Alice', 1, '1990-01-01', 'Spouse'),
+('Bob', 1, '2015-05-12', 'Child'),
+('Charlie', 2, '1985-07-14', 'Spouse'),
+('David', 2, '2018-03-22', 'Child'),
+('Eva', 3, '1989-09-15', 'Spouse'),
+('Frank', 3, '2017-11-11', 'Child'),
+('Grace', 4, '1991-04-18', 'Spouse'),
+('Henry', 4, '2016-12-12', 'Child'),
+('Irene', 5, '1988-02-20', 'Spouse'),
+('Jack', 5, '2019-06-30', 'Child');
+
+ 
+-- Added it in the end as it was Giving issue while running as we are creating employee table first and then Department table.
+Alter table EMPLOYEE add(FOREIGN KEY (department_id) REFERENCES Department(department_id));
+
+-- Adding Indexes
+
+-- Employee table
+CREATE INDEX idx_employee_department ON Employee(department_id);
+CREATE INDEX idx_employee_name ON Employee(first_name, last_name);
+
+-- Department table
+CREATE INDEX idx_department_manager ON Department(manager_id);
+
+-- Attendance table
+CREATE INDEX idx_attendance_employee ON Attendance(employee_id);
+CREATE INDEX idx_attendance_date ON Attendance(date);
+
+-- Payroll table
+CREATE INDEX idx_payroll_employee ON Payroll(employee_id);
+CREATE INDEX idx_payroll_pay_period ON Payroll(pay_period);
+
+-- Recruitment table
+CREATE INDEX idx_recruitment_position ON Recruitment(position_id);
+CREATE INDEX idx_recruitment_department ON Recruitment(department_id);
+
+-- Performance table
+CREATE INDEX idx_performance_employee ON Performance(employee_id);
+CREATE INDEX idx_performance_date ON Performance(date);
+
+-- Benefits table
+CREATE INDEX idx_benefits_employee ON Benefits(employee_id);
+CREATE INDEX idx_benefits_type ON Benefits(benefit_type);
+
+-- Expense table
+CREATE INDEX idx_expense_employee ON Expense(employee_id);
+CREATE INDEX idx_expense_type ON Expense(expense_type);
+
+-- Dependent table
+CREATE INDEX idx_dependent_employee ON Dependent(employee_id);
+
+alter table employee add column password VARCHAR(255);
+
