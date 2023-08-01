@@ -112,6 +112,14 @@ HRM_API is the backend API service for the HRM App, a Human Resource Management 
 - Express.js
 - MySQL
 
+## Database Setup
+
+To set up the database, follow these instructions:
+
+1. Create the database: CREATE DATABASE HRM_DO
+2. Use the newly created database: USE HRM_DO
+3. 3. Run all the SQL files located in the `SQL_Scripts\HRM_DB_Dump` directory.
+
 ## Contributing
 
 Contributions, issues, and feature requests are welcome!
