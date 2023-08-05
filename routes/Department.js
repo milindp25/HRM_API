@@ -106,5 +106,63 @@ router.post("/addDeprtment",(req,resp) => {
       resp.status(500).json(err);
     }
   });
+  router.get("/getEmployeePerformance", async (req, resp) => {
+
+    const db_con = require("../DB_Connection_Establishment");
+    const id = req.query.id;
+    var result = db_con.query(`SELECT 
+                              E.first_name,
+                              E.last_name,
+                              P.date,
+                              P.rating,
+                              P.comments
+                          FROM 
+                              Employee E
+                          JOIN 
+                              Performance P ON E.employee_id = P.employee_id
+                          WHERE 
+                              E.department_id in(Select department_id from Employee  where employee_id =${id})`,(err,res,fields) => {
+      if (err) 
+      {
+      resp.status(500).json(err);
+      console.log(err);
+      throw err;
+      };
+      resp.status(200).json(res);
+  });
+    try {
+    } catch (err) {
+      resp.status(500).json(err);
+    }
+  });
+
+  router.get("/getActiveRecruitments", async (req, resp) => {
+
+    const db_con = require("../DB_Connection_Establishment");
+    const id = req.query.id;
+    var result = db_con.query(`SELECT 
+                              j.job_title, 
+                              COUNT(r.status) AS active_recruitments 
+                            FROM 
+                              Job j 
+                            INNER JOIN 
+                              Recruitment r ON j.job_id = r.position_id 
+                            WHERE 
+                              r.status = 'OPEN' 
+                            GROUP BY 
+                              j.job_title`,(err,res,fields) => {
+      if (err) 
+      {
+      resp.status(500).json(err);
+      console.log(err);
+      throw err;
+      };
+      resp.status(200).json(res);
+  });
+    try {
+    } catch (err) {
+      resp.status(500).json(err);
+    }
+  });
 
 module.exports = router;

@@ -340,6 +340,34 @@ router.get("/getPayroll", async (req, resp) => {
     }
   });
 
+  router.get("/getOpenPositions", async (req, resp) => {
+
+    const db_con = require("../DB_Connection_Establishment");
+    var result = db_con.query(`SELECT 
+                                j.job_title,  
+                                COUNT(*) as open_positions
+                            FROM 
+                                Recruitment r
+                            INNER JOIN 
+                                Job j ON r.position_id = j.job_id
+                            WHERE 
+                                r.status = 'Open'
+                            GROUP BY  
+                                j.job_title`,(err,res,fields) => {
+      if (err) 
+      {
+      resp.status(500).json(err);
+      console.log(err);
+      throw err;
+      };
+      resp.status(200).json(res);
+  });
+    try {
+    } catch (err) {
+      resp.status(500).json(err);
+    }
+  });
+
   router.post("/addExpense",(req,resp) => {
 
     const db_con = require("../DB_Connection_Establishment");
@@ -449,6 +477,46 @@ router.post("/clockOut", (req, resp) => {
               });
           }
       });
+});
+
+router.get("/showEmployeeSalary", async (req, resp) => {
+
+  const db_con = require("../DB_Connection_Establishment");
+  const id = req.query.id;
+  var result = db_con.query(`SELECT 
+                              e.first_name, 
+                              e.last_name, 
+                              total_salary, 
+                              RANK() OVER (PARTITION BY e.department_id ORDER BY total_salary DESC) salary_rank
+                            FROM (
+                              SELECT 
+                                e.employee_id, 
+                                e.first_name, 
+                                e.last_name, 
+                                e.department_id, 
+                                SUM(p.amount) AS total_salary 
+                              FROM 
+                                Employee e 
+                                JOIN Payroll p ON e.employee_id = p.employee_id 
+                              GROUP BY 
+                                e.employee_id, 
+                                e.first_name, 
+                                e.last_name, 
+                                e.department_id
+                            ) e
+                            order by salary_rank`,(err,res,fields) => {
+    if (err) 
+    {
+    resp.status(500).json(err);
+    console.log(err);
+    throw err;
+    };
+    resp.status(200).json(res);
+});
+  try {
+  } catch (err) {
+    resp.status(500).json(err);
+  }
 });
   
 
